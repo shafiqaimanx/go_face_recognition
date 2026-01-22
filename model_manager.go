@@ -10,7 +10,9 @@ import (
 	"runtime"
 )
 
+// Model file URLs (from GitHub releases)
 const (
+	// GitHub releases URL base
 	GitHubReleasesBase = "https://github.com/shafiqaimanx/go_face_recognition/releases/download/models/"
 
 	ShapePredictor68URL = GitHubReleasesBase + "shape_predictor_68_face_landmarks.dat"
@@ -162,6 +164,51 @@ func EnsureAllModels(dir string) error {
 		}
 	}
 
+	return nil
+}
+
+// DownloadModel downloads and extracts a model file
+// Handles .bz2 compression automatically if URL ends with .bz2
+func DownloadModel(url, destPath string) error {
+	// Create HTTP client with redirect following
+	client := &http.Client{
+		CheckRedirect: func(req *http.Request, via []*http.Request) error {
+			return nil // Follow redirects
+		},
+	}
+
+	// Create HTTP request
+	resp, err := client.Get(url)
+	if err != nil {
+		return fmt.Errorf("HTTP request failed: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("HTTP status %d: %s", resp.StatusCode, resp.Status)
+	}
+
+	// Create destination file
+	destFile, err := os.Create(destPath)
+	if err != nil {
+		return fmt.Errorf("failed to create file: %w", err)
+	}
+	defer destFile.Close()
+
+	// Check if URL ends with .bz2 (for dlib.net fallback)
+	var reader io.Reader = resp.Body
+	if filepath.Ext(url) == ".bz2" {
+		reader = bzip2.NewReader(resp.Body)
+	}
+
+	// Copy with progress indicator
+	written, err := copyWithProgress(destFile, reader, resp.ContentLength)
+	if err != nil {
+		os.Remove(destPath) // Clean up partial file
+		return fmt.Errorf("download failed: %w", err)
+	}
+
+	fmt.Printf("\nDownloaded %.2f MB\n", float64(written)/(1024*1024))
 	return nil
 }
 
