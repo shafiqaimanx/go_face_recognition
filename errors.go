@@ -2,7 +2,7 @@ package gofacerecognition
 
 import "fmt"
 
-// ModelNotFoundError is returned when a required model file is not found
+// ModelNotFoundError: Returned when a required model file is not found
 type ModelNotFoundError struct {
 	ModelName string
 	Path      string
@@ -12,7 +12,7 @@ func (e *ModelNotFoundError) Error() string {
 	return fmt.Sprintf("model '%s' not found at path: %s", e.ModelName, e.Path)
 }
 
-// ImageLoadError is returned when an image cannot be loaded
+// ImageLoadError: Returned when an image cannot be loaded
 type ImageLoadError struct {
 	Path string
 	Err  error
@@ -26,14 +26,14 @@ func (e *ImageLoadError) Unwrap() error {
 	return e.Err
 }
 
-// NoFaceFoundError is returned when no face is found in an image
+// NoFaceFoundError: Returned when no face is found in an image
 type NoFaceFoundError struct{}
 
 func (e *NoFaceFoundError) Error() string {
 	return "no face found in image"
 }
 
-// InvalidModelError is returned when an invalid model type is specified
+// InvalidModelError: Returned when an invalid model type is specified
 type InvalidModelError struct {
 	Model string
 	Valid []string
@@ -43,7 +43,7 @@ func (e *InvalidModelError) Error() string {
 	return fmt.Sprintf("invalid model '%s', valid options are: %v", e.Model, e.Valid)
 }
 
-// RecognizerNotInitializedError is returned when the recognizer is used before initialization
+// RecognizerNotInitializedError: Returned when the recognizer is used before initialization
 type RecognizerNotInitializedError struct{}
 
 func (e *RecognizerNotInitializedError) Error() string {

@@ -89,9 +89,9 @@ func JSONToEncoding(data []byte) (FaceEncoding, error) {
 
 // NamedEncoding pairs a name with a face encoding for serialization
 type NamedEncoding struct {
-	Name     string        `json:"name"`
-	Encoding FaceEncoding  `json:"encoding"`
-	Metadata interface{}   `json:"metadata,omitempty"`
+	Name     string       `json:"name"`
+	Encoding FaceEncoding `json:"encoding"`
+	Metadata interface{}  `json:"metadata,omitempty"`
 }
 
 // EncodeNamedEncodings serializes named encodings to JSON
