@@ -10,13 +10,12 @@ import (
 	"runtime"
 )
 
-// Model file URLs (from dlib.net)
 const (
-	ModelURLBase = "http://dlib.net/files/"
+	GitHubReleasesBase = "https://github.com/shafiqaimanx/go_face_recognition/releases/download/models/"
 
-	ShapePredictor68URL  = ModelURLBase + "shape_predictor_68_face_landmarks.dat.bz2"
-	ShapePredictor5URL   = ModelURLBase + "shape_predictor_5_face_landmarks.dat.bz2"
-	FaceRecognitionURL   = ModelURLBase + "dlib_face_recognition_resnet_model_v1.dat.bz2"
+	ShapePredictor68URL = GitHubReleasesBase + "shape_predictor_68_face_landmarks.dat"
+	ShapePredictor5URL  = GitHubReleasesBase + "shape_predictor_5_face_landmarks.dat"
+	FaceRecognitionURL  = GitHubReleasesBase + "dlib_face_recognition_resnet_model_v1.dat"
 )
 
 // Model file names
@@ -163,44 +162,6 @@ func EnsureAllModels(dir string) error {
 		}
 	}
 
-	return nil
-}
-
-// DownloadModel downloads and extracts a model file
-// Handles .bz2 compression automatically
-func DownloadModel(url, destPath string) error {
-	// Create HTTP request
-	resp, err := http.Get(url)
-	if err != nil {
-		return fmt.Errorf("HTTP request failed: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("HTTP status %d: %s", resp.StatusCode, resp.Status)
-	}
-
-	// Create destination file
-	destFile, err := os.Create(destPath)
-	if err != nil {
-		return fmt.Errorf("failed to create file: %w", err)
-	}
-	defer destFile.Close()
-
-	// Check if URL ends with .bz2
-	var reader io.Reader = resp.Body
-	if filepath.Ext(url) == ".bz2" {
-		reader = bzip2.NewReader(resp.Body)
-	}
-
-	// Copy with progress indicator
-	written, err := copyWithProgress(destFile, reader, resp.ContentLength)
-	if err != nil {
-		os.Remove(destPath) // Clean up partial file
-		return fmt.Errorf("download failed: %w", err)
-	}
-
-	fmt.Printf("\nDownloaded %.2f MB\n", float64(written)/(1024*1024))
 	return nil
 }
 
